@@ -1,4 +1,4 @@
-# GraphQL Schema 2
+# GraphQL Schema 3
 
 ![Pub Version (including pre-releases)](https://img.shields.io/pub/v/graphql_schema2?include_prereleases)
 [![Null Safety](https://img.shields.io/badge/null-safety-brightgreen)](https://dart.dev/null-safety)
@@ -121,7 +121,7 @@ type Character {
 }
 ```
 
-The field `characters` accepts a parameter, `title`. To reproduce this in `package:graphql_schema2`, use `GraphQLFieldInput`:
+The field `characters` accepts a parameter, `title`. To reproduce this in `package:graphql_schema3`, use `GraphQLFieldInput`:
 
 ```dart
 final GraphQLObjectType queryType = objectType('AnimeQuery', fields: [
@@ -141,7 +141,7 @@ final GraphQLObjectType characterType = objectType('Character', fields: [
 
 In the majority of cases where you use GraphQL, you will be delegate the actual fetching of data to a database object, or some asynchronous resolver function.
 
-`package:graphql_schema2` includes this functionality in the `resolve` property, which is passed a context object and a `Map<String, dynamic>` of arguments.
+`package:graphql_schema3` includes this functionality in the `resolve` property, which is passed a context object and a `Map<String, dynamic>` of arguments.
 
 A hypothetical example of the above might be:
 
