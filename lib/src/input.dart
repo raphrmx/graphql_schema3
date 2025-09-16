@@ -1,3 +1,0 @@
-class GraphQLInputClass {
-  const GraphQLInputClass();
-}
