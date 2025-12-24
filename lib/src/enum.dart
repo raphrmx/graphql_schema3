@@ -89,12 +89,15 @@ class GraphQLEnumType<Value> extends GraphQLScalarType<Value, String>
   /// - Also accepts already-coerced Dart enum value (Value)
   @override
   ValidationResult<String> validate(String key, Object? input) {
-    // Accept already-coerced Dart enum
+    // Case 1: already deserialized (Dart enum)
     if (input is Value) {
-      // The ValidationResult carries the serialized representation; keep it harmless.
-      return ValidationResult<String>._ok(input.toString());
+      // It is by definition valid
+      return ValidationResult<String>._ok(
+        values.firstWhere((v) => v.value == input).name,
+      );
     }
 
+    // Case 2: GraphQL enum literal (String)
     if (input is String && values.any((v) => v.name == input)) {
       return ValidationResult<String>._ok(input);
     }
