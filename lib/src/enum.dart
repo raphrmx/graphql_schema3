@@ -27,6 +27,12 @@ GraphQLEnumType<String> enumTypeFromStrings(String name, List<String> values,
 /// A [GraphQLType] with only a predetermined number of possible values.
 ///
 /// Though these are serialized as strings, they carry special meaning with a type system.
+/// A [GraphQLType] with only a predetermined number of possible values.
+///
+/// Though these are serialized as strings, they carry special meaning with a type system.
+/// A [GraphQLType] with only a predetermined number of possible values.
+///
+/// Though these are serialized as strings, they carry special meaning with a type system.
 class GraphQLEnumType<Value> extends GraphQLScalarType<Value, String>
     with _NonNullableMixin<Value, String> {
   /// The name of this enum type.
@@ -46,39 +52,64 @@ class GraphQLEnumType<Value> extends GraphQLScalarType<Value, String>
 
   @override
   String serialize(Value value) {
-    //if (value == null) return null;
     return values.firstWhere((v) => v.value == value).name;
   }
 
   @override
   String? convert(value) => serialize(value);
 
+  /// IMPORTANT:
+  /// - Accepts standard GraphQL enum input as String (e.g. "IN")
+  /// - Also accepts already-coerced Dart enum value (Value) to be idempotent
   @override
-  Value deserialize(String serialized) {
-    return values.firstWhere((v) => v.name == serialized).value;
-  }
-
-  @override
-  ValidationResult<String> validate(String key, String input) {
-    if (!values.any((v) => v.name == input)) {
-      //if (input == null) {
-      //  return new ValidationResult<String>._failure(
-      //      ['The enum "$name" does not accept null values.']);
-      //}
-
-      return ValidationResult<String>._failure(
-          ['"$input" is not a valid value for the enum "$name".']);
+  Value deserialize(Object? serialized) {
+    // Idempotent case: value already coerced (e.g. InOut.IN)
+    if (serialized is Value) {
+      return serialized;
     }
 
-    return ValidationResult<String>._ok(input);
+    // Standard GraphQL enum input: string literal
+    if (serialized is String) {
+      final match = values.firstWhere(
+            (v) => v.name == serialized,
+        orElse: () => throw GraphQLException.fromMessage(
+          '"$serialized" is not a valid value for the enum "$name".',
+        ),
+      );
+      return match.value;
+    }
+
+    throw GraphQLException.fromMessage(
+      'Invalid enum input for "$name": ${serialized.runtimeType} ($serialized)',
+    );
+  }
+
+  /// IMPORTANT:
+  /// - Accepts String enum literals
+  /// - Also accepts already-coerced Dart enum value (Value)
+  @override
+  ValidationResult<String> validate(String key, Object? input) {
+    // Accept already-coerced Dart enum
+    if (input is Value) {
+      // The ValidationResult carries the serialized representation; keep it harmless.
+      return ValidationResult<String>._ok(input.toString());
+    }
+
+    if (input is String && values.any((v) => v.name == input)) {
+      return ValidationResult<String>._ok(input);
+    }
+
+    return ValidationResult<String>._failure(
+      ['"$input" is not a valid value for the enum "$name".'],
+    );
   }
 
   @override
   bool operator ==(other) =>
       other is GraphQLEnumType &&
-      other.name == name &&
-      other.description == description &&
-      const ListEquality<GraphQLEnumValue>().equals(other.values, values);
+          other.name == name &&
+          other.description == description &&
+          const ListEquality<GraphQLEnumValue>().equals(other.values, values);
 
   @override
   int get hashCode => hash3(name, description, values);
