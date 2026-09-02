@@ -145,23 +145,37 @@ class GraphQLNonNullableType<Value, Serialized>
     throw UnsupportedError('Cannot call nonNullable() on a non-nullable type.');
   }
 
+  // The three methods below widen their parameter to `dynamic` on purpose.
+  //
+  // `Serialized` is reified here: for `[String!]!` it is `List<String>`, while
+  // a JSON body always hands over a `List<dynamic>`, so the implicit cast at
+  // the call site failed with "type 'List<dynamic>' is not a subtype of type
+  // 'List<String>'" - making every non-nullable LIST argument unusable, from a
+  // variable or from an inline literal alike. Passing the value on as
+  // `dynamic` defers the cast to `ofType`, whose own parameter is the plain
+  // `List` / `Map` a decoded body actually satisfies. Scalars are unaffected:
+  // a `String` still casts to `String`.
   @override
-  ValidationResult<Serialized> validate(String key, Serialized input) {
+  ValidationResult<Serialized> validate(String key, dynamic input) {
     if (input == null) {
       return ValidationResult._failure(
           ['Expected "$key" to be a non-null value.']);
     }
-    return ofType.validate(key, input);
+    // Dynamic dispatch on purpose: `ofType`'s static parameter is `Serialized`
+    // too, so a direct call would reinstate the very cast we are avoiding.
+    // Dispatching dynamically lands on the real implementation, whose own
+    // parameter is the plain `List` / `Map` a decoded body satisfies.
+    return (ofType as dynamic).validate(key, input) as ValidationResult<Serialized>;
   }
 
   @override
-  Value deserialize(Serialized serialized) {
-    return ofType.deserialize(serialized);
+  Value deserialize(dynamic serialized) {
+    return (ofType as dynamic).deserialize(serialized) as Value;
   }
 
   @override
-  Serialized serialize(Value value) {
-    return ofType.serialize(value);
+  Serialized serialize(dynamic value) {
+    return (ofType as dynamic).serialize(value) as Serialized;
   }
 
   @override
