@@ -178,6 +178,20 @@ class GraphQLUnion {
   const GraphQLUnion({required this.types});
 }
 
+/// Field-level marker telling [graphql_generator3] to skip a field when
+/// building the GraphQL schema of an `@graphQLClass`. The field stays
+/// fully functional in Dart (JSON serialization, `copyWith`, equality,
+/// etc.) but is invisible to GraphQL consumers.
+///
+/// Use it for fields whose Dart type isn't representable in GraphQL - 
+/// notably `Map<String, X>` or other dictionary-like shapes that the
+/// generator can't infer a type for.
+class GraphQLSkip {
+  const GraphQLSkip();
+}
+
+const graphQLSkip = GraphQLSkip();
+
 class GraphQLResolver {
   const GraphQLResolver();
 }

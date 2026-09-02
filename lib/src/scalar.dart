@@ -3,12 +3,12 @@ part of 'schema.dart';
 /// `true` or `false`.
 final GraphQLScalarType<bool, bool> graphQLBoolean = GraphQLBoolType();
 
-/// A UTF‐8 character sequence.
+/// A UTF-8 character sequence.
 final GraphQLScalarType<String, String> graphQLString = GraphQLStringType();
 
 /// The ID scalar type represents a unique identifier, often used to re-fetch an object or as the key for a cache.
 ///
-/// The ID type is serialized in the same way as a String; however, defining it as an ID signifies that it is not intended to be human‐readable.
+/// The ID type is serialized in the same way as a String; however, defining it as an ID signifies that it is not intended to be human-readable.
 final GraphQLScalarType<String, String> graphQLId =
     GraphQLStringType(name: 'ID');
 
@@ -25,7 +25,7 @@ GraphQLStringType graphQLStringRange(int min, int max) =>
 /// A [DateTime], serialized as an ISO-8601 string..
 final GraphQLScalarType<DateTime, String> graphQLDate = _GraphQLDateType._();
 
-/// A signed 32‐bit integer.
+/// A signed 32-bit integer.
 final graphQLInt = GraphQLNumType<int>('Int');
 
 final graphQLPositiveInt =

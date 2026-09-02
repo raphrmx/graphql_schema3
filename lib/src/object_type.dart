@@ -249,6 +249,19 @@ class GraphQLInputObjectType
             'Unexpected field "$k" encountered in $key. Accepted values on type $name: ${inputFields.map((f) => f.name).toList()}');
       } else {
         var v = input[k];
+
+        // An explicit `null` never reaches validate(): the validators take
+        // non-nullable Dart parameters (a `List` for a list field, a `Map` for
+        // a nested input object, a `String` for a string), so a null would
+        // surface as a TypeError instead of a validation result - and on a
+        // non-nullable field that TypeError even masked the proper "cannot be
+        // null" message the loop above had already recorded.
+        if (v == null) {
+          // Non-nullable fields: already reported above, nothing to add here.
+          if (field.type is! GraphQLNonNullableType) out[k] = null;
+          continue;
+        }
+
         var result = field.type.validate(k.toString(), v);
 
         if (!result.successful) {
@@ -274,7 +287,10 @@ class GraphQLInputObjectType
         throw UnsupportedError(
             'Cannot serialize field "$k", which was not defined in the schema.');
       }
-      return out..[k.toString()] = field.type.serialize(value[k]);
+      // Same reason as validate(): the converters take non-nullable Dart
+      // parameters, so a null field has to short-circuit them.
+      final v = value[k];
+      return out..[k.toString()] = v == null ? null : field.type.serialize(v);
     });
   }
 
@@ -285,7 +301,8 @@ class GraphQLInputObjectType
       if (field == null) {
         throw UnsupportedError('Unexpected field "$k" encountered in map.');
       }
-      return out..[k.toString()] = field.type.deserialize(serialized[k]);
+      final v = serialized[k];
+      return out..[k.toString()] = v == null ? null : field.type.deserialize(v);
     });
   }
 
