@@ -3,7 +3,6 @@ library;
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:quiver/core.dart';
 import 'package:source_span/source_span.dart';
 
 part 'argument.dart';
@@ -41,24 +40,26 @@ class GraphQLSchema {
 
   final Iterable<GraphQLDirectiveType>? directiveTypes;
 
-  GraphQLSchema(
-      {this.queryType,
-      this.mutationType,
-      this.subscriptionType,
-      this.directiveTypes});
+  GraphQLSchema({
+    this.queryType,
+    this.mutationType,
+    this.subscriptionType,
+    this.directiveTypes,
+  });
 }
 
 /// A shorthand for creating a [GraphQLSchema].
-GraphQLSchema graphQLSchema(
-        {required GraphQLObjectType queryType,
-        GraphQLObjectType? mutationType,
-        GraphQLObjectType? subscriptionType,
-        Iterable<GraphQLDirectiveType>? directiveTypes}) =>
-    GraphQLSchema(
-        queryType: queryType,
-        mutationType: mutationType,
-        subscriptionType: subscriptionType,
-        directiveTypes: directiveTypes);
+GraphQLSchema graphQLSchema({
+  required GraphQLObjectType queryType,
+  GraphQLObjectType? mutationType,
+  GraphQLObjectType? subscriptionType,
+  Iterable<GraphQLDirectiveType>? directiveTypes,
+}) => GraphQLSchema(
+  queryType: queryType,
+  mutationType: mutationType,
+  subscriptionType: subscriptionType,
+  directiveTypes: directiveTypes,
+);
 
 /// A default resolver that always returns `null`.
 Object? resolveToNull(_, _) => null;
@@ -71,26 +72,20 @@ class GraphQLException implements Exception {
   GraphQLException(this.errors);
 
   factory GraphQLException.fromMessage(String message) {
-    return GraphQLException([
-      GraphQLExceptionError(message),
-    ]);
+    return GraphQLException([GraphQLExceptionError(message)]);
   }
 
   factory GraphQLException.fromSourceSpan(String message, FileSpan span) {
     return GraphQLException([
       GraphQLExceptionError(
         message,
-        locations: [
-          GraphExceptionErrorLocation.fromSourceLocation(span.start),
-        ],
+        locations: [GraphExceptionErrorLocation.fromSourceLocation(span.start)],
       ),
     ]);
   }
 
   Map<String, List<Map<String, dynamic>>> toJson() {
-    return {
-      'errors': errors.map((e) => e.toJson()).toList(),
-    };
+    return {'errors': errors.map((e) => e.toJson()).toList()};
   }
 
   @override
@@ -131,7 +126,8 @@ class GraphExceptionErrorLocation {
   GraphExceptionErrorLocation(this.line, this.column);
 
   factory GraphExceptionErrorLocation.fromSourceLocation(
-      SourceLocation location) {
+    SourceLocation location,
+  ) {
     return GraphExceptionErrorLocation(location.line, location.column);
   }
 
@@ -157,8 +153,12 @@ class GraphQLDocumentation {
   /// The name of an explicit type for the annotated field, rather than having it be assumed.
   final Symbol? typeName;
 
-  const GraphQLDocumentation(
-      {this.description, this.deprecationReason, this.type, this.typeName});
+  const GraphQLDocumentation({
+    this.description,
+    this.deprecationReason,
+    this.type,
+    this.typeName,
+  });
 }
 
 /// The canonical instance.
@@ -183,7 +183,7 @@ class GraphQLUnion {
 /// fully functional in Dart (JSON serialization, `copyWith`, equality,
 /// etc.) but is invisible to GraphQL consumers.
 ///
-/// Use it for fields whose Dart type isn't representable in GraphQL - 
+/// Use it for fields whose Dart type isn't representable in GraphQL -
 /// notably `Map<String, X>` or other dictionary-like shapes that the
 /// generator can't infer a type for.
 class GraphQLSkip {

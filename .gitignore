@@ -1,0 +1,26 @@
+# Dart and pub
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+build/
+doc/api/
+
+# A library resolves against its consumer, so its lock is noise.
+pubspec.lock
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Tooling
+.fvm/
+.fvmrc
+
+# Miscellaneous
+*.log
+*.swp
+.DS_Store

@@ -35,10 +35,17 @@ class GraphQLFieldInput<Value, Serialized> {
     }
   }
 
-  GraphQLFieldInput(this.name, this.type,
-      {this.defaultValue, this.defaultsToNull = false, this.description}) {
-    assert(_isInputTypeOrScalar(type),
-        'All inputs to a GraphQL field must either be scalar types, or explicitly marked as INPUT_OBJECT. Call `GraphQLObjectType.asInputObject()` on any object types you are passing as inputs to a field.');
+  GraphQLFieldInput(
+    this.name,
+    this.type, {
+    this.defaultValue,
+    this.defaultsToNull = false,
+    this.description,
+  }) {
+    assert(
+      _isInputTypeOrScalar(type),
+      'All inputs to a GraphQL field must either be scalar types, or explicitly marked as INPUT_OBJECT. Call `GraphQLObjectType.asInputObject()` on any object types you are passing as inputs to a field.',
+    );
   }
 
   @override
@@ -46,10 +53,10 @@ class GraphQLFieldInput<Value, Serialized> {
       other is GraphQLFieldInput &&
       other.name == name &&
       other.type == type &&
-      other.defaultValue == other.defaultValue &&
+      other.defaultValue == defaultValue &&
       other.defaultsToNull == defaultsToNull &&
       other.description == description;
 
   @override
-  int get hashCode => hash4(name, type, description, defaultValue);
+  int get hashCode => Object.hash(name, type, description, defaultValue);
 }

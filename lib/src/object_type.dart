@@ -34,22 +34,32 @@ class GraphQLObjectType
   List<GraphQLObjectType> get possibleTypes =>
       List<GraphQLObjectType>.unmodifiable(_possibleTypes);
 
-  GraphQLObjectType(this.name, this.description,
-      {this.isInterface = false, this.polymorphicName});
+  GraphQLObjectType(
+    this.name,
+    this.description, {
+    this.isInterface = false,
+    this.polymorphicName,
+  });
 
   @override
   GraphQLType<Map<String, dynamic>, Map<String, dynamic>>
-      coerceToInputObject() {
+  coerceToInputObject() {
     return toInputObject('${name}Input', description: description);
   }
 
   /// Converts [this] into a [GraphQLInputObjectType].
   GraphQLInputObjectType toInputObject(String name, {String? description}) {
-    return GraphQLInputObjectType(name,
-        description: description ?? this.description,
-        inputFields: fields.map((f) => GraphQLInputObjectField(
-            f.name, f.type.coerceToInputObject(),
-            description: f.description)));
+    return GraphQLInputObjectType(
+      name,
+      description: description ?? this.description,
+      inputFields: fields.map(
+        (f) => GraphQLInputObjectField(
+          f.name,
+          f.type.coerceToInputObject(),
+          description: f.description,
+        ),
+      ),
+    );
   }
 
   /// Declares that this type inherits from another parent type.
@@ -92,7 +102,8 @@ class GraphQLObjectType
       if (field.type is GraphQLNonNullableType) {
         if (!input.containsKey(field.name) || input[field.name] == null) {
           errors.add(
-              'Field "${field.name}, of type ${field.type} cannot be null."');
+            'Field "${field.name}, of type ${field.type} cannot be null."',
+          );
         }
       }
     }
@@ -102,7 +113,8 @@ class GraphQLObjectType
 
       if (field == null) {
         errors.add(
-            'Unexpected field "$k" encountered in $key. Accepted values on type $name: ${fields.map((f) => f.name).toList()}');
+          'Unexpected field "$k" encountered in $key. Accepted values on type $name: ${fields.map((f) => f.name).toList()}',
+        );
       } else {
         var v = input[k];
         var result = field.type.validate(k.toString(), field.type.convert(v));
@@ -128,7 +140,8 @@ class GraphQLObjectType
       var field = fields.firstWhereOrNull((f) => f.name == k);
       if (field == null) {
         throw UnsupportedError(
-            'Cannot serialize field "$k", which was not defined in the schema.');
+          'Cannot serialize field "$k", which was not defined in the schema.',
+        );
       }
       return out..[k.toString()] = field.serialize(value[k]);
     });
@@ -165,19 +178,32 @@ class GraphQLObjectType
         other.description == description &&
         other.isInterface == isInterface &&
         const ListEquality<GraphQLObjectField>().equals(other.fields, fields) &&
-//        const ListEquality<GraphQLObjectType>() Removed, as it causes a stack overflow :(
-//            .equals(other.interfaces, interfaces) &&
-        const ListEquality<GraphQLObjectType>()
-            .equals(other.possibleTypes, possibleTypes);
+        //        const ListEquality<GraphQLObjectType>() Removed, as it causes a stack overflow :(
+        //            .equals(other.interfaces, interfaces) &&
+        const ListEquality<GraphQLObjectType>().equals(
+          other.possibleTypes,
+          possibleTypes,
+        );
   }
 
   @override
-  int get hashCode => hash4(name, name, isInterface, fields);
+  // Hashes the field names rather than the fields themselves: a field carries
+  // its type, and a GraphQL schema is routinely recursive, so hashing the
+  // fields would not terminate. Equal types still agree, which is all the
+  // contract asks; unequal ones may collide, which it allows.
+  int get hashCode => Object.hash(
+    name,
+    description,
+    isInterface,
+    Object.hashAll(fields.map((f) => f.name)),
+  );
 }
 
 Map<String, dynamic> _foldToStringDynamic(Map map) {
   return map.keys.fold<Map<String, dynamic>>(
-      <String, dynamic>{}, (out, k) => out..[k.toString()] = map[k]);
+    <String, dynamic>{},
+    (out, k) => out..[k.toString()] = map[k],
+  );
 }
 
 enum DirectiveLocation {
@@ -188,12 +214,16 @@ enum DirectiveLocation {
   fragmentDefinition,
   fragmentSpread,
   inlineFragment,
-  variableDefinition
+  variableDefinition,
 }
 
 class GraphQLDirectiveType extends GraphQLInputObjectType {
-  GraphQLDirectiveType(super.name,
-      {super.description, required this.locations, super.inputFields});
+  GraphQLDirectiveType(
+    super.name, {
+    super.description,
+    required this.locations,
+    super.inputFields,
+  });
 
   final Set<DirectiveLocation> locations;
 }
@@ -217,9 +247,11 @@ class GraphQLInputObjectType
   /// A list of the fields that an input object of this type is expected to have.
   final List<GraphQLInputObjectField> inputFields = [];
 
-  GraphQLInputObjectType(this.name,
-      {this.description,
-      Iterable<GraphQLInputObjectField> inputFields = const []}) {
+  GraphQLInputObjectType(
+    this.name, {
+    this.description,
+    Iterable<GraphQLInputObjectField> inputFields = const [],
+  }) {
     this.inputFields.addAll(inputFields);
   }
 
@@ -236,7 +268,8 @@ class GraphQLInputObjectType
       if (field.type is GraphQLNonNullableType) {
         if (!input.containsKey(field.name) || input[field.name] == null) {
           errors.add(
-              'Field "${field.name}, of type ${field.type} cannot be null."');
+            'Field "${field.name}, of type ${field.type} cannot be null."',
+          );
         }
       }
     }
@@ -246,7 +279,8 @@ class GraphQLInputObjectType
 
       if (field == null) {
         errors.add(
-            'Unexpected field "$k" encountered in $key. Accepted values on type $name: ${inputFields.map((f) => f.name).toList()}');
+          'Unexpected field "$k" encountered in $key. Accepted values on type $name: ${inputFields.map((f) => f.name).toList()}',
+        );
       } else {
         var v = input[k];
 
@@ -285,7 +319,8 @@ class GraphQLInputObjectType
       var field = inputFields.firstWhereOrNull((f) => f.name == k);
       if (field == null) {
         throw UnsupportedError(
-            'Cannot serialize field "$k", which was not defined in the schema.');
+          'Cannot serialize field "$k", which was not defined in the schema.',
+        );
       }
       // Same reason as validate(): the converters take non-nullable Dart
       // parameters, so a null field has to short-circuit them.
@@ -311,16 +346,26 @@ class GraphQLInputObjectType
     return other is GraphQLInputObjectType &&
         other.name == name &&
         other.description == description &&
-        const ListEquality<GraphQLInputObjectField>()
-            .equals(other.inputFields, inputFields);
+        const ListEquality<GraphQLInputObjectField>().equals(
+          other.inputFields,
+          inputFields,
+        );
   }
 
   @override
-  int get hashCode => hash4(name, name, description, inputFields);
+  // Hashes the field names rather than the fields themselves: a field carries
+  // its type, and a GraphQL schema is routinely recursive, so hashing the
+  // fields would not terminate. Equal types still agree, which is all the
+  // contract asks; unequal ones may collide, which it allows.
+  int get hashCode => Object.hash(
+    name,
+    description,
+    Object.hashAll(inputFields.map((f) => f.name)),
+  );
 
   @override
   GraphQLType<Map<String, dynamic>, Map<String, dynamic>>
-      coerceToInputObject() => this;
+  coerceToInputObject() => this;
 }
 
 /// A field expected within a [GraphQLInputObjectType].
@@ -337,8 +382,12 @@ class GraphQLInputObjectField<Value, Serialized> {
   /// An optional default value for this field in an input object.
   final Value? defaultValue;
 
-  GraphQLInputObjectField(this.name, this.type,
-      {this.description, this.defaultValue});
+  GraphQLInputObjectField(
+    this.name,
+    this.type, {
+    this.description,
+    this.defaultValue,
+  });
 
   @override
   bool operator ==(other) =>
@@ -349,5 +398,5 @@ class GraphQLInputObjectField<Value, Serialized> {
       other.defaultValue == defaultValue;
 
   @override
-  int get hashCode => hash4(name, type, description, defaultValue);
+  int get hashCode => Object.hash(name, type, description, defaultValue);
 }

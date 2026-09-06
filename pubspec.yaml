@@ -1,5 +1,5 @@
 name: graphql_schema3
-version: 3.0.4
+version: 3.1.0
 description: An implementation of GraphQL's type system in Dart. Basis of graphql_server3.
 homepage: https://github.com/raphrmx/graphql_schema3
 repository: https://github.com/raphrmx/graphql_schema3
@@ -10,7 +10,7 @@ environment:
 dependencies:
   collection: ^1.19.1
   source_span: ^1.10.2
-  quiver: ^3.2.2
 
 dev_dependencies:
-  lints: ^6.0.0
+  lints: ^6.1.0
+  test: ^1.31.0

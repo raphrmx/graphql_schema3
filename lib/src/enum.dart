@@ -1,27 +1,31 @@
 part of 'schema.dart';
 
 /// Shorthand for building a [GraphQLEnumType].
-GraphQLEnumType enumType<Value>(String name, Map<String, Value> values,
-    {String? description}) {
+GraphQLEnumType enumType<Value>(
+  String name,
+  Map<String, Value> values, {
+  String? description,
+}) {
   final len = values.keys.length;
 
-  return GraphQLEnumType<Value>(
-      name,
-      [
-        for (var i = 0; i < len; i++)
-          GraphQLEnumValue(
-              values.keys.elementAt(i), values.values.elementAt(i)),
-      ],
-      description: description);
+  return GraphQLEnumType<Value>(name, [
+    for (var i = 0; i < len; i++)
+      GraphQLEnumValue(values.keys.elementAt(i), values.values.elementAt(i)),
+  ], description: description);
 }
 
 /// Shorthand for building a [GraphQLEnumType] where all the possible values
 /// are mapped to Dart strings.
-GraphQLEnumType<String> enumTypeFromStrings(String name, List<String> values,
-    {String? description}) {
+GraphQLEnumType<String> enumTypeFromStrings(
+  String name,
+  List<String> values, {
+  String? description,
+}) {
   return GraphQLEnumType<String>(
-      name, values.map((s) => GraphQLEnumValue(s, s)).toList(),
-      description: description);
+    name,
+    values.map((s) => GraphQLEnumValue(s, s)).toList(),
+    description: description,
+  );
 }
 
 /// A [GraphQLType] with only a predetermined number of possible values.
@@ -56,7 +60,13 @@ class GraphQLEnumType<Value> extends GraphQLScalarType<Value, String>
   }
 
   @override
-  String? convert(value) => serialize(value);
+  String? convert(Object? value) {
+    // Already the serialized form: a GraphQL enum literal is its own name.
+    if (value is String) return value;
+    // Otherwise look the Dart value up, and answer `null` when it is unknown
+    // so validation reports it instead of raising.
+    return values.firstWhereOrNull((v) => v.value == value)?.name;
+  }
 
   /// IMPORTANT:
   /// - Accepts standard GraphQL enum input as String (e.g. "IN")
@@ -71,7 +81,7 @@ class GraphQLEnumType<Value> extends GraphQLScalarType<Value, String>
     // Standard GraphQL enum input: string literal
     if (serialized is String) {
       final match = values.firstWhere(
-            (v) => v.name == serialized,
+        (v) => v.name == serialized,
         orElse: () => throw GraphQLException.fromMessage(
           '"$serialized" is not a valid value for the enum "$name".',
         ),
@@ -92,9 +102,12 @@ class GraphQLEnumType<Value> extends GraphQLScalarType<Value, String>
     // Case 1: already deserialized (Dart enum)
     if (input is Value) {
       // It is by definition valid
-      return ValidationResult<String>._ok(
-        values.firstWhere((v) => v.value == input).name,
-      );
+      final match = values.firstWhereOrNull((v) => v.value == input);
+      if (match != null) {
+        return ValidationResult<String>._ok(match.name);
+      }
+      // Fall through: a String-valued enum reaches here for any literal, known
+      // or not, so an unknown one must become a failure and not an exception.
     }
 
     // Case 2: GraphQL enum literal (String)
@@ -102,20 +115,20 @@ class GraphQLEnumType<Value> extends GraphQLScalarType<Value, String>
       return ValidationResult<String>._ok(input);
     }
 
-    return ValidationResult<String>._failure(
-      ['"$input" is not a valid value for the enum "$name".'],
-    );
+    return ValidationResult<String>._failure([
+      '"$input" is not a valid value for the enum "$name".',
+    ]);
   }
 
   @override
   bool operator ==(other) =>
       other is GraphQLEnumType &&
-          other.name == name &&
-          other.description == description &&
-          const ListEquality<GraphQLEnumValue>().equals(other.values, values);
+      other.name == name &&
+      other.description == description &&
+      const ListEquality<GraphQLEnumValue>().equals(other.values, values);
 
   @override
-  int get hashCode => hash3(name, description, values);
+  int get hashCode => Object.hash(name, description, Object.hashAll(values));
 
   @override
   GraphQLType<Value, String> coerceToInputObject() => this;
@@ -137,8 +150,12 @@ class GraphQLEnumValue<Value> {
   /// The reason, if any, that this value was deprecated, if it indeed is deprecated.
   final String? deprecationReason;
 
-  GraphQLEnumValue(this.name, this.value,
-      {this.description, this.deprecationReason});
+  GraphQLEnumValue(
+    this.name,
+    this.value, {
+    this.description,
+    this.deprecationReason,
+  });
 
   /// Returns `true` if this value has a [deprecationReason].
   bool get isDeprecated => deprecationReason != null;
@@ -152,5 +169,5 @@ class GraphQLEnumValue<Value> {
       other.deprecationReason == deprecationReason;
 
   @override
-  int get hashCode => hash4(name, value, description, deprecationReason);
+  int get hashCode => Object.hash(name, value, description, deprecationReason);
 }

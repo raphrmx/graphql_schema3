@@ -20,7 +20,11 @@ abstract class GraphQLType<Value, Serialized> {
   Value deserialize(Serialized serialized);
 
   /// Attempts to cast a dynamic [value] into a [Serialized] instance.
-  Serialized? convert(value) => value as Serialized?;
+  ///
+  /// A value of the wrong shape yields `null` rather than raising: conversion
+  /// happens while validating an incoming request, where a mistyped field has
+  /// to surface as a validation error and not as a crash.
+  Serialized? convert(Object? value) => value is Serialized ? value : null;
 
   /// Performs type coercion against an [input] value, and returns a list of errors if the validation was unsuccessful.
   ValidationResult<Serialized> validate(String key, covariant dynamic input);
@@ -40,8 +44,8 @@ abstract class GraphQLType<Value, Serialized> {
 
 /// Shorthand to create a [GraphQLListType].
 GraphQLListType<Value, Serialized> listOf<Value, Serialized>(
-        GraphQLType<Value, Serialized> innerType) =>
-    GraphQLListType<Value, Serialized>(innerType);
+  GraphQLType<Value, Serialized> innerType,
+) => GraphQLListType<Value, Serialized>(innerType);
 
 /// A special [GraphQLType] that indicates that input vales should be a list of another type, [ofType].
 class GraphQLListType<Value, Serialized>
@@ -52,7 +56,7 @@ class GraphQLListType<Value, Serialized>
   GraphQLListType(this.ofType);
 
   @override
-  List<Serialized>? convert(value) {
+  List<Serialized>? convert(Object? value) {
     if (value is Iterable) {
       return value.cast<Serialized>().toList();
     } else {
@@ -158,14 +162,16 @@ class GraphQLNonNullableType<Value, Serialized>
   @override
   ValidationResult<Serialized> validate(String key, dynamic input) {
     if (input == null) {
-      return ValidationResult._failure(
-          ['Expected "$key" to be a non-null value.']);
+      return ValidationResult._failure([
+        'Expected "$key" to be a non-null value.',
+      ]);
     }
     // Dynamic dispatch on purpose: `ofType`'s static parameter is `Serialized`
     // too, so a direct call would reinstate the very cast we are avoiding.
     // Dispatching dynamically lands on the real implementation, whose own
     // parameter is the plain `List` / `Map` a decoded body satisfies.
-    return (ofType as dynamic).validate(key, input) as ValidationResult<Serialized>;
+    return (ofType as dynamic).validate(key, input)
+        as ValidationResult<Serialized>;
   }
 
   @override
