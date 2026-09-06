@@ -1,12 +1,11 @@
 # GraphQL Schema 3
 
-![Pub Version (including pre-releases)](https://img.shields.io/pub/v/graphql_schema2?include_prereleases)
-[![Null Safety](https://img.shields.io/badge/null-safety-brightgreen)](https://dart.dev/null-safety)
-[![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/angel_dart/discussion)
-[![License](https://img.shields.io/github/license/dart-backend/graphql_dart)](https://github.com/dart-backend/graphql_dart/blob/master/packages/graphql_schema/LICENSE)
-[![melos](https://img.shields.io/badge/maintained%20with-melos-f700ff.svg?style=flat-square)](https://github.com/invertase/melos)
+[![Build](https://img.shields.io/github/actions/workflow/status/raphrmx/graphql_schema3/ci.yml?branch=main&label=build)](https://github.com/raphrmx/graphql_schema3/actions/workflows/ci.yml)
+[![Maintainer](https://img.shields.io/badge/Maintainer-Raphael-purple)](https://comapps.be)
+[![License](https://img.shields.io/badge/Licence-BSD--3--Clause-blue)](LICENSE)
 
-An implementation of GraphQL's type system in Dart. Supports any platform where Dart runs. The decisions made in the design of this library were done to make the experience as similar to the JavaScript reference implementation as possible, and to also correctly implement the official specification.
+An implementation of GraphQL's type system in Dart, with no dependency beyond `collection` and
+`source_span`. Supports any platform where Dart runs. The decisions made in the design of this library were done to make the experience as similar to the JavaScript reference implementation as possible, and to also correctly implement the official specification.
 
 Contains functionality to build *all* GraphQL types:
 
