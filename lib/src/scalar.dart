@@ -150,12 +150,14 @@ class GraphQLNumMinType<T extends num> extends GraphQLNumType<T> {
   final T min;
 
   @override
-  ValidationResult<T> validate(String key, T input) {
-    var ret = super.validate(key, input);
+  ValidationResult<T> validate(String key, Object? input) {
+    final ret = super.validate(key, input);
+    final value = ret.value;
+    if (!ret.successful || value == null) return ret;
 
-    if (ret.successful && input < min) {
-      ret = ValidationResult._failure([
-        'Value ($input) can not be lower than $min',
+    if (value < min) {
+      return ValidationResult._failure([
+        'Value ($value) can not be lower than $min',
       ]);
     }
 
@@ -170,12 +172,14 @@ class GraphQLNumMaxType<T extends num> extends GraphQLNumType<T> {
   final T max;
 
   @override
-  ValidationResult<T> validate(String key, T input) {
-    var ret = super.validate(key, input);
+  ValidationResult<T> validate(String key, Object? input) {
+    final ret = super.validate(key, input);
+    final value = ret.value;
+    if (!ret.successful || value == null) return ret;
 
-    if (ret.successful && input > max) {
-      ret = ValidationResult._failure([
-        'Value ($input) can not be greater than $max',
+    if (value > max) {
+      return ValidationResult._failure([
+        'Value ($value) can not be greater than $max',
       ]);
     }
 
@@ -194,12 +198,14 @@ class GraphQLNumRangedType<T extends num> extends GraphQLNumType<T> {
   final T max;
 
   @override
-  ValidationResult<T> validate(String key, T input) {
-    var ret = super.validate(key, input);
+  ValidationResult<T> validate(String key, Object? input) {
+    final ret = super.validate(key, input);
+    final value = ret.value;
+    if (!ret.successful || value == null) return ret;
 
-    if (ret.successful && (input < min || input > max)) {
-      ret = ValidationResult._failure([
-        'Value ($input) must be between $min and $max. (>= $min && <= $max)',
+    if (value < min || value > max) {
+      return ValidationResult._failure([
+        'Value ($value) must be between $min and $max. (>= $min && <= $max)',
       ]);
     }
 
@@ -243,12 +249,14 @@ class GraphQLStringMinType extends GraphQLStringType {
   final int min;
 
   @override
-  ValidationResult<String> validate(String key, String input) {
-    var ret = super.validate(key, input);
+  ValidationResult<String> validate(String key, Object? input) {
+    final ret = super.validate(key, input);
+    final value = ret.value;
+    if (!ret.successful || value == null) return ret;
 
-    if (ret.successful && input.length < min) {
-      ret = ValidationResult._failure([
-        'Value (${input.length} chars) can not be lower than $min',
+    if (value.length < min) {
+      return ValidationResult._failure([
+        'Value (${value.length} chars) can not be lower than $min',
       ]);
     }
 
@@ -263,12 +271,14 @@ class GraphQLStringMaxType extends GraphQLStringType {
   final int max;
 
   @override
-  ValidationResult<String> validate(String key, String input) {
-    var ret = super.validate(key, input);
+  ValidationResult<String> validate(String key, Object? input) {
+    final ret = super.validate(key, input);
+    final value = ret.value;
+    if (!ret.successful || value == null) return ret;
 
-    if (ret.successful && input.length > max) {
-      ret = ValidationResult._failure([
-        'Value (${input.length} chars) can not be greater than $max',
+    if (value.length > max) {
+      return ValidationResult._failure([
+        'Value (${value.length} chars) can not be greater than $max',
       ]);
     }
 
@@ -287,12 +297,14 @@ class GraphQLStringRangeType extends GraphQLStringType {
   final int max;
 
   @override
-  ValidationResult<String> validate(String key, String input) {
-    var ret = super.validate(key, input);
+  ValidationResult<String> validate(String key, Object? input) {
+    final ret = super.validate(key, input);
+    final value = ret.value;
+    if (!ret.successful || value == null) return ret;
 
-    if (ret.successful && (input.length < min || input.length > max)) {
-      ret = ValidationResult._failure([
-        'Value (${input.length} chars) must have between $min and $max chars',
+    if (value.length < min || value.length > max) {
+      return ValidationResult._failure([
+        'Value (${value.length} chars) must have between $min and $max chars',
       ]);
     }
 

@@ -74,10 +74,10 @@ class GraphQLObjectType
   }
 
   @override
-  ValidationResult<Map<String, dynamic>> validate(String key, Map input) {
-    //if (input is! Map) {
-    //  return ValidationResult._failure(['Expected "$key" to be a Map.']);
-    //}
+  ValidationResult<Map<String, dynamic>> validate(String key, Object? input) {
+    if (input is! Map) {
+      return ValidationResult._failure(['Expected "$key" to be a Map.']);
+    }
 
     if (isInterface) {
       var errors = <String>[];
@@ -256,10 +256,10 @@ class GraphQLInputObjectType
   }
 
   @override
-  ValidationResult<Map<String, dynamic>> validate(String key, Map input) {
-    //if (input is! Map) {
-    //  return ValidationResult._failure(['Expected "$key" to be a Map.']);
-    //}
+  ValidationResult<Map<String, dynamic>> validate(String key, Object? input) {
+    if (input is! Map) {
+      return ValidationResult._failure(['Expected "$key" to be a Map.']);
+    }
 
     var out = {};
     var errors = <String>[];

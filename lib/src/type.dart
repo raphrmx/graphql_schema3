@@ -72,10 +72,10 @@ class GraphQLListType<Value, Serialized>
       'A list of items of type ${ofType.name ?? '(${ofType.description}).'}';
 
   @override
-  ValidationResult<List<Serialized>> validate(String key, List input) {
-    //if (input is! List) {
-    //  return ValidationResult._failure(['Expected "$key" to be a list.']);
-    //}
+  ValidationResult<List<Serialized>> validate(String key, Object? input) {
+    if (input is! List) {
+      return ValidationResult._failure(['Expected "$key" to be a list.']);
+    }
 
     var out = <Serialized>[];
     var errors = <String>[];

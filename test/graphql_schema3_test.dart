@@ -433,4 +433,100 @@ void main() {
       expect(build().hashCode, equals(build().hashCode));
     });
   });
+
+  // Every validator used to narrow its parameter - an object type took a `Map`,
+  // a list type a `List`, a bounded scalar its own `T` - while the base declares
+  // the parameter `covariant`. So a value of the wrong shape did not fail
+  // validation, it raised a TypeError from the call boundary, which is the one
+  // thing validation exists to avoid. The bounded scalars also measured the raw
+  // input, and their supertype accepts null, so a null crashed the comparison.
+  group('validation refuses rather than raises', () {
+    final GraphQLObjectType user = objectType(
+      'User',
+      fields: <GraphQLObjectField<dynamic, dynamic>>[
+        field('name', graphQLString, resolve: null),
+      ],
+    );
+
+    test('an object type answers a failure for a non-map', () {
+      final ValidationResult<Map<String, dynamic>> result = user.validate(
+        'user',
+        'not a map',
+      );
+
+      expect(result.successful, isFalse);
+      expect(result.errors.single, contains('to be a Map'));
+    });
+
+    test('an object type answers a failure for null', () {
+      expect(user.validate('user', null).successful, isFalse);
+    });
+
+    test('a list type answers a failure for a non-list', () {
+      final ValidationResult<List<String>> result = listOf(
+        graphQLString,
+      ).validate('tags', 'not a list');
+
+      expect(result.successful, isFalse);
+      expect(result.errors.single, contains('to be a list'));
+    });
+
+    test('a list type answers a failure for null', () {
+      expect(listOf(graphQLString).validate('tags', null).successful, isFalse);
+    });
+
+    test('a bounded number answers a failure for a string', () {
+      expect(
+        GraphQLNumMinType<int>('Int', 3).validate('n', 'nope').successful,
+        isFalse,
+      );
+    });
+
+    test('a bounded number still enforces its bound', () {
+      expect(
+        GraphQLNumMinType<int>('Int', 3).validate('n', 2).successful,
+        isFalse,
+      );
+      expect(
+        GraphQLNumMinType<int>('Int', 3).validate('n', 4).successful,
+        isTrue,
+      );
+      expect(
+        GraphQLNumMaxType<int>('Int', 3).validate('n', 4).successful,
+        isFalse,
+      );
+      expect(
+        GraphQLNumRangedType<int>('Int', 2, 4).validate('n', 3).successful,
+        isTrue,
+      );
+      expect(
+        GraphQLNumRangedType<int>('Int', 2, 4).validate('n', 5).successful,
+        isFalse,
+      );
+    });
+
+    test('a bounded number lets a null through to the nullability rules', () {
+      // The bound has nothing to measure; whether null is legal at all is the
+      // non-nullable wrapper's business, not the bound's.
+      expect(
+        GraphQLNumMinType<int>('Int', 3).validate('n', null).successful,
+        isTrue,
+      );
+    });
+
+    test('a bounded string answers a failure for a number', () {
+      expect(graphQLStringMin(3).validate('s', 42).successful, isFalse);
+    });
+
+    test('a bounded string still enforces its bound', () {
+      expect(graphQLStringMin(3).validate('s', 'ab').successful, isFalse);
+      expect(graphQLStringMin(3).validate('s', 'abc').successful, isTrue);
+      expect(graphQLStringMax(3).validate('s', 'abcd').successful, isFalse);
+      expect(graphQLStringRange(2, 4).validate('s', 'abc').successful, isTrue);
+      expect(
+        graphQLStringRange(2, 4).validate('s', 'abcde').successful,
+        isFalse,
+      );
+    });
+  });
 }

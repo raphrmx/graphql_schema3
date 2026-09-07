@@ -1,6 +1,7 @@
 # GraphQL Schema 3
 
 [![Build](https://img.shields.io/github/actions/workflow/status/raphrmx/graphql_schema3/ci.yml?branch=main&label=build)](https://github.com/raphrmx/graphql_schema3/actions/workflows/ci.yml)
+[![Pub Version](https://img.shields.io/pub/v/graphql_schema3?color=blue)](https://pub.dev/packages/graphql_schema3)
 [![Maintainer](https://img.shields.io/badge/Maintainer-Raphael-purple)](https://comapps.be)
 [![License](https://img.shields.io/badge/Licence-BSD--3--Clause-blue)](LICENSE)
 
@@ -44,6 +45,20 @@ So: the `3` line does not track upstream and does not merge from it. It is
 maintained on its own, with three rules - as few dependencies as possible, no
 dependency that dictates the SDK, and no behaviour without a test covering it.
 
+### The `3` is a lineage marker, not a version and not a succession
+
+`graphql_schema2` is not this package's predecessor. It is its sibling, and it is
+alive: 7.0.0 as of August 2026, published by dukefirehawk.com, on its own
+numbering that long ago stopped matching the `2` in its name. The `3` here says
+only which line this fork was taken from.
+
+If you want the upstream package, take
+[`graphql_schema2`](https://pub.dev/packages/graphql_schema2). Take this one for
+the smaller dependency tree and the fixes listed below. They have not been
+offered upstream. The two lines were compared at upstream 7.0.0: every release
+it has cut since the fork point raises the Dart SDK floor or the linter, and its
+dependency set is unchanged.
+
 ## What version 3 changed
 
 Two dependencies, `collection` and `source_span`.
@@ -70,6 +85,12 @@ Also: `quiver` removed, its `hash2` / `hash3` / `hash4` replaced by
 `Object.hash`; and a test suite of 41 tests, where there were none.
 
 The full list is in [CHANGELOG.md](CHANGELOG.md).
+
+## Installation
+
+```bash
+dart pub add graphql_schema3
+```
 
 ## Usage
 
