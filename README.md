@@ -62,7 +62,8 @@ dependency set is unchanged.
 
 ## What version 3 changed
 
-Two dependencies, `collection` and `source_span`.
+Two dependencies, [`collection`](https://pub.dev/packages/collection) and
+[`source_span`](https://pub.dev/packages/source_span).
 
 Six bugs, all of them reachable from a client request:
 
