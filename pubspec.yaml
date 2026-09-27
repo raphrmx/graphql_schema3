@@ -1,9 +1,9 @@
 name: graphql_schema3
-version: 3.2.1
+version: 3.2.2
 description: >-
   An implementation of the GraphQL type system in Dart. Builds object, union,
   enum, input and scalar types, and validates and coerces values against them.
-homepage: https://github.com/raphrmx/graphql_schema3
+homepage: https://comapps.web.app/#graphql_schema3
 repository: https://github.com/raphrmx/graphql_schema3
 issue_tracker: https://github.com/raphrmx/graphql_schema3/issues
 
