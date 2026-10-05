@@ -5,6 +5,7 @@
 ![Maintainer](https://img.shields.io/badge/Maintainer-Raphael_Vrient-733d90)
 [![Licence](https://img.shields.io/badge/Licence-MIT-8C6A3F)](LICENSE)
 ![Platforms](https://img.shields.io/badge/Platforms-Android,_iOS,_macOS,_Windows,_Linux,_Web-22375C.svg)
+[![Donate with PayPal](https://img.shields.io/badge/Donate-PayPal-00457C?logo=paypal&logoColor=white)](https://www.paypal.com/donate/?hosted_button_id=ZN6D382YQAV5N)
 
 An implementation of GraphQL's type system in Dart, with no dependency beyond `collection` and
 `source_span`. Supports any platform where Dart runs. The decisions made in the design of this library were done to make the experience as similar to the JavaScript reference implementation as possible, and to also correctly implement the official specification.
@@ -227,3 +228,19 @@ var field = field(
   },
 );
 ```
+
+## More from COMAPPS
+
+GraphQL for Dart:
+
+| Package | What it does |
+| --- | --- |
+| [graphql_parser3](https://pub.dev/packages/graphql_parser3) | Parses queries and schemas into an AST with source spans. |
+| [graphql_server3](https://pub.dev/packages/graphql_server3) | Executes queries, mutations and subscriptions. |
+| [graphql_generator3](https://pub.dev/packages/graphql_generator3) | Generates graphql_schema3 types from annotated classes. |
+| [graphql_schema_annotation](https://pub.dev/packages/graphql_schema_annotation) | Directives, interfaces and scalars for graphql_schema_generator. |
+| [graphql_schema_generator](https://pub.dev/packages/graphql_schema_generator) | Generates an SDL schema from plain Dart classes. |
+| [graphql_openapi_codegen](https://pub.dev/packages/graphql_openapi_codegen) | Generates a Dart server and an OpenAPI document from a schema. |
+
+Every package COMAPPS publishes is listed at
+[packages.comapps.be](https://packages.comapps.be).
